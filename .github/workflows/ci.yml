@@ -10,6 +10,8 @@ jobs:
   backend-lint-test:
     name: Backend – Lint & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: backend
@@ -43,6 +45,8 @@ jobs:
   backend-docker:
     name: Backend – Docker Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: backend-lint-test
 
     steps:
@@ -63,6 +67,8 @@ jobs:
   frontend-lint:
     name: Frontend – Lint & Type-check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: frontend
@@ -89,6 +95,8 @@ jobs:
   frontend-docker:
     name: Frontend – Docker Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: frontend-lint
 
     steps:
