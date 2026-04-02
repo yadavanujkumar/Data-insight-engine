@@ -10,6 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+    # Replace platform.example.com with your actual domain before deploying.
     - host: platform.example.com
       http:
         paths:
