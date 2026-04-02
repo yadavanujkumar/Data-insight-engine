@@ -3,8 +3,8 @@ from typing import Any, Callable, Dict
 
 def _fallback_graph(registry):
     def run(state: Dict[str, Any]) -> Dict[str, Any]:
-        quality_service = registry.get("quality")
-        recommendation_service = registry.get("recommendation")
+        quality_service = registry.resolve("quality", db=state.get("db"))
+        recommendation_service = registry.resolve("recommendation", db=state.get("db"))
         dataset = state.get("dataset")
         if dataset is None:
             return {"error": "dataset is required"}
@@ -27,14 +27,14 @@ def build_quality_recommendation_graph(registry) -> Callable[[Dict[str, Any]], D
         graph = StateGraph(State)
 
         def quality_node(state: Dict[str, Any]) -> Dict[str, Any]:
-            quality_service = registry.get("quality")
+            quality_service = registry.resolve("quality", db=state.get("db"))
             dataset = state.get("dataset")
             if quality_service and dataset is not None:
                 state["quality"] = quality_service.execute({"dataset": dataset})
             return state
 
         def recommendation_node(state: Dict[str, Any]) -> Dict[str, Any]:
-            recommendation_service = registry.get("recommendation")
+            recommendation_service = registry.resolve("recommendation", db=state.get("db"))
             dataset = state.get("dataset")
             if recommendation_service and dataset is not None:
                 state["recommendations"] = recommendation_service.execute({"dataset": dataset})

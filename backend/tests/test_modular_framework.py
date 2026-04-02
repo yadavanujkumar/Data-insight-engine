@@ -4,6 +4,11 @@ from app.integrations.langchain_integration import get_langchain_tools
 from app.integrations.langgraph_integration import build_quality_recommendation_graph
 
 
+class DummyDataset:
+    def __init__(self, dataset_id=1):
+        self.id = dataset_id
+
+
 class DummyService:
     def __init__(self, response):
         self.response = response
@@ -47,7 +52,7 @@ def test_langchain_tools_fallback_without_langchain():
 
     assert len(tools) == 2
     assert all(tool["provider"] == "fallback" for tool in tools)
-    quality_result = tools[0]["callable"]("dataset-object")
+    quality_result = tools[0]["callable"](DummyDataset())
     assert quality_result["type"] == "quality"
 
 
@@ -57,7 +62,7 @@ def test_langgraph_fallback_graph_without_langgraph():
     registry.register("recommendation", DummyService({"count": 3}))
 
     graph = build_quality_recommendation_graph(registry)
-    result = graph({"dataset": object()})
+    result = graph({"dataset": DummyDataset()})
 
     assert result["quality"]["score"] == 88
     assert result["recommendations"]["count"] == 3

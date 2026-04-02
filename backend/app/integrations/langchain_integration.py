@@ -5,9 +5,9 @@ def _fallback_tool(name: str, description: str, func: Callable[..., Any]) -> Dic
     return {"name": name, "description": description, "callable": func, "provider": "fallback"}
 
 
-def get_langchain_tools(registry) -> List[Any]:
-    quality_service = registry.get("quality")
-    recommendation_service = registry.get("recommendation")
+def get_langchain_tools(registry, **resolve_kwargs) -> List[Any]:
+    quality_service = registry.resolve("quality", **resolve_kwargs)
+    recommendation_service = registry.resolve("recommendation", **resolve_kwargs)
 
     tools: List[Any] = []
 

@@ -11,6 +11,21 @@ class ServiceRegistry:
     def get(self, name: str) -> Any:
         return self._services.get(name)
 
+    def resolve(self, name: str, **kwargs: Any) -> Any:
+        service = self.get(name)
+        if service is None:
+            return None
+        if hasattr(service, "execute"):
+            return service
+        if isinstance(service, type):
+            db = kwargs.get("db")
+            if db is None:
+                raise ValueError(f"db is required to instantiate service '{name}'")
+            return service(db)
+        if callable(service):
+            return service(**kwargs)
+        return service
+
     def all(self) -> Dict[str, Any]:
         return dict(self._services)
 
