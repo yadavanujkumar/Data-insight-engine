@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from sqlalchemy.orm import Session
 
 from app.models.db_models import Alert, MetricSnapshot
-from app.schemas.schemas import AlertCreate, AlertRead
+from app.schemas.schemas import AlertCreate
 
 
 class AlertService:

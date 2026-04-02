@@ -130,7 +130,7 @@ class Recommendation(Base):
     expected_impact = Column(Float, default=0.0)
     status = Column(String, default="pending")  # pending, in_progress, completed, dismissed
     dataset_id = Column(Integer, ForeignKey("datasets.id"), nullable=True)
-    metadata = Column(JSON)
+    extra_metadata = Column(JSON)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

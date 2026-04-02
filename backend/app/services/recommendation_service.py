@@ -1,7 +1,6 @@
 from typing import Any, Dict, List
 
 import numpy as np
-import pandas as pd
 from sqlalchemy.orm import Session
 
 from app.models.db_models import Dataset, Recommendation
@@ -55,7 +54,7 @@ class RecommendationService:
             if outliers / max(len(df), 1) > 0.05:
                 recs.append({
                     "title": f"Outliers detected in '{col}'",
-                    "description": f"{outliers} outliers detected ({outliers/len(df)*100:.1f}%). Review or clip these values.",
+                    "description": f"{outliers} outliers detected ({outliers / len(df) * 100:.1f}%). Review or clip these values.",
                     "category": "analytics",
                     "priority": "medium",
                     "expected_impact": 0.5,

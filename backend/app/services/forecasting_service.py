@@ -1,10 +1,9 @@
-from typing import Any, Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.preprocessing import StandardScaler
 from sqlalchemy.orm import Session
 
 from app.models.db_models import Dataset, Prediction

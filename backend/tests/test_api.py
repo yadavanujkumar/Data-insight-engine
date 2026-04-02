@@ -1,13 +1,48 @@
+import os
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+from unittest.mock import MagicMock
+
+# Use in-memory SQLite for tests
+os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+
+from app.main import app
+from app.database import get_db, Base
+
+# Create a fresh in-memory SQLite engine for tests
+TEST_DATABASE_URL = "sqlite:///:memory:"
+test_engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+def override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture(autouse=True)
+def setup_test_db():
+    Base.metadata.create_all(bind=test_engine)
+    yield
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture
 def client():
-    with patch("app.database.engine"), patch("app.database.SessionLocal"):
-        from app.main import app
-        return TestClient(app)
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
 
 
 def test_health_check(client):
@@ -18,36 +53,24 @@ def test_health_check(client):
 
 
 def test_list_datasets_empty(client):
-    with patch("app.api.ingestion.get_db") as mock_db:
-        mock_session = MagicMock()
-        mock_session.query.return_value.offset.return_value.limit.return_value.all.return_value = []
-        mock_db.return_value = iter([mock_session])
-        response = client.get("/api/v1/datasets")
-        assert response.status_code == 200
+    response = client.get("/api/v1/datasets")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 def test_list_alerts_empty(client):
-    with patch("app.api.alerts.get_db") as mock_db:
-        mock_session = MagicMock()
-        mock_session.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
-        mock_db.return_value = iter([mock_session])
-        response = client.get("/api/v1/alerts")
-        assert response.status_code == 200
+    response = client.get("/api/v1/alerts")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 def test_list_recommendations_empty(client):
-    with patch("app.api.recommendations.get_db") as mock_db:
-        mock_session = MagicMock()
-        mock_session.query.return_value.offset.return_value.limit.return_value.all.return_value = []
-        mock_db.return_value = iter([mock_session])
-        response = client.get("/api/v1/recommendations")
-        assert response.status_code == 200
+    response = client.get("/api/v1/recommendations")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 def test_list_reports_empty(client):
-    with patch("app.api.reports.get_db") as mock_db:
-        mock_session = MagicMock()
-        mock_session.query.return_value.offset.return_value.limit.return_value.all.return_value = []
-        mock_db.return_value = iter([mock_session])
-        response = client.get("/api/v1/reports")
-        assert response.status_code == 200
+    response = client.get("/api/v1/reports")
+    assert response.status_code == 200
+    assert response.json() == []

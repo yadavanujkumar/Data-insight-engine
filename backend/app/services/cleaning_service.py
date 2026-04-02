@@ -60,7 +60,6 @@ class CleaningService:
                 self._log(dataset.id, "standardize", op_report, len(cols))
 
         # Persist cleaned file
-        import os
         cleaned_path = dataset.file_path.replace(f".{dataset.file_type}", f"_cleaned.{dataset.file_type}")
         if dataset.file_type in ("xlsx", "xls"):
             df.to_excel(cleaned_path, index=False)

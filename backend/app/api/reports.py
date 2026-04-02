@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.db_models import Report
 from app.schemas.schemas import ReportCreate, ReportRead
-from app.services.analytics_service import AnalyticsService
 
 router = APIRouter()
 

@@ -1,5 +1,4 @@
-import re
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import pandas as pd
 from sqlalchemy.orm import Session
@@ -32,10 +31,7 @@ class NLQService:
             explanation=explanation,
         )
 
-    def _interpret(self, query: str, df: Optional[pd.DataFrame]):
-        tokens = query.split()
-
-        # Average / mean
+    def _interpret(self, query: str, df: Optional[pd.DataFrame]):        # Average / mean
         if any(w in query for w in ["average", "mean", "avg"]):
             col = self._find_column(query, df)
             if col and df is not None and col in df.columns:
