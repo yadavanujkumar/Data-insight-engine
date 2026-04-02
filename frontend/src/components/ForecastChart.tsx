@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
   Area,
-  AreaChart,
+  ComposedChart,
 } from 'recharts';
 import { forecastingApi, type ForecastResult } from '@/lib/api';
 
@@ -118,7 +118,7 @@ export default function ForecastChart({ datasetId, columns }: Props) {
             )}
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={chartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="step" tick={{ fontSize: 11 }} interval={Math.floor(chartData.length / 6)} />
               <YAxis tick={{ fontSize: 11 }} />
@@ -127,7 +127,7 @@ export default function ForecastChart({ datasetId, columns }: Props) {
               <Area type="monotone" dataKey="upper" stroke="transparent" fill="#bfdbfe" name="Upper CI" />
               <Area type="monotone" dataKey="lower" stroke="transparent" fill="#f8fafc" name="Lower CI" />
               <Line type="monotone" dataKey="value" stroke="#3b82f6" dot={false} strokeWidth={2} name="Forecast" />
-            </AreaChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       )}

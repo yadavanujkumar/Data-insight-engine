@@ -72,9 +72,7 @@ export default function Dashboard() {
     if (selected?.id === id) setSelected(datasets.find((d) => d.id !== id) || null);
   };
 
-  const columns = selected && 'column_info' in selected && selected.column_info
-    ? Object.keys(selected.column_info as Record<string, unknown>)
-    : [];
+  const columns = selected?.column_info ? Object.keys(selected.column_info) : [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

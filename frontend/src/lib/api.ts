@@ -16,6 +16,7 @@ export interface Dataset {
   file_type?: string;
   row_count?: number;
   column_count?: number;
+  column_info?: Record<string, unknown>;
   quality_score?: number;
   status: string;
   created_at: string;
