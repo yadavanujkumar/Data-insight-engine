@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from prometheus_client import make_asgi_app
 
+from app.core.service_registry import service_registry
 from app.api import (
     alerts,
     analytics,
@@ -21,11 +22,20 @@ from app.api import (
     simulation,
 )
 from app.config import settings
+from app.services.analytics_service import AnalyticsService
+from app.services.ingestion_service import IngestionService
+from app.services.quality_service import QualityService
+from app.services.recommendation_service import RecommendationService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    # Register service classes for modular orchestration/integrations
+    service_registry.register("ingestion", IngestionService)
+    service_registry.register("quality", QualityService)
+    service_registry.register("analytics", AnalyticsService)
+    service_registry.register("recommendation", RecommendationService)
     yield
 
 

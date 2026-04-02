@@ -5,12 +5,13 @@ import pandas as pd
 from scipy import stats
 from sqlalchemy.orm import Session
 
+from app.core.base_service import BaseService
 from app.models.db_models import Dataset
 from app.schemas.schemas import AnalyticsRequest, AnalyticsResult
 from app.services.ingestion_service import IngestionService
 
 
-class AnalyticsService:
+class AnalyticsService(BaseService):
     def __init__(self, db: Session):
         self.db = db
         self.ingestion = IngestionService(db)
@@ -137,3 +138,11 @@ class AnalyticsService:
     def detect_anomalies(self, dataset: Dataset, column: str) -> Dict[str, Any]:
         df = self.ingestion.load_dataframe(dataset)
         return {"column": column, "anomalies": self._find_anomalies(df, column)}
+
+    def execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        dataset = payload.get("dataset")
+        request = payload.get("request")
+        if dataset is None or request is None:
+            return {"error": "dataset and request are required"}
+        result = self.run_analytics(dataset, request)
+        return result.model_dump()

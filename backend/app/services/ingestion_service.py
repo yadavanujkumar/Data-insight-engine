@@ -5,10 +5,12 @@ from typing import Any, Dict
 import pandas as pd
 
 from app.config import settings
+from app.core.base_service import BaseService
+from app.core.event_bus import event_bus
 from app.models.db_models import Dataset
 
 
-class IngestionService:
+class IngestionService(BaseService):
     def __init__(self, db):
         self.db = db
 
@@ -37,6 +39,7 @@ class IngestionService:
         self.db.add(dataset)
         self.db.commit()
         self.db.refresh(dataset)
+        event_bus.publish("dataset.ingested", {"dataset_id": dataset.id, "name": dataset.name})
         return dataset
 
     def _read_file(self, content: bytes, ext: str) -> pd.DataFrame:
@@ -84,3 +87,17 @@ class IngestionService:
         if ext in ("xlsx", "xls"):
             return pd.read_excel(dataset.file_path)
         return pd.read_csv(dataset.file_path)
+
+    def execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        content = payload.get("content")
+        filename = payload.get("filename")
+        name = payload.get("name")
+        if content is None or filename is None or name is None:
+            return {"error": "content, filename, and name are required"}
+        dataset = self.ingest_file(
+            content=content,
+            filename=filename,
+            name=name,
+            description=payload.get("description"),
+        )
+        return {"dataset_id": dataset.id, "status": dataset.status}

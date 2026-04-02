@@ -5,12 +5,13 @@ import pandas as pd
 from scipy import stats
 from sqlalchemy.orm import Session
 
+from app.core.base_service import BaseService
 from app.models.db_models import Dataset
 from app.schemas.schemas import QualityScore
 from app.services.ingestion_service import IngestionService
 
 
-class QualityService:
+class QualityService(BaseService):
     def __init__(self, db: Session):
         self.db = db
         self.ingestion = IngestionService(db)
@@ -152,3 +153,10 @@ class QualityService:
                         "drift_detected": pval < 0.05,
                     }
         return {"drift_results": drift_results, "columns_checked": len(drift_results)}
+
+    def execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        dataset = payload.get("dataset")
+        if dataset is None:
+            return {"error": "dataset is required"}
+        quality = self.compute_quality(dataset)
+        return quality.model_dump()

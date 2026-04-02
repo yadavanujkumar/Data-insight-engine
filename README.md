@@ -36,6 +36,21 @@ A production-ready, full-stack platform for data ingestion, quality analysis, fo
 | **Reports** | Report creation and management |
 | **Metrics** | System metrics recording and aggregation |
 
+## Modular Service Orchestration
+
+The backend now includes a lightweight modular framework under `backend/app/core/`:
+
+- `base_service.py`: common service execution interface
+- `service_registry.py`: runtime service registration for independent orchestration
+- `event_bus.py`: publish/subscribe communication between services
+
+Optional integration adapters are available under `backend/app/integrations/`:
+
+- `langchain_integration.py`: exposes registered services as LangChain tools when LangChain is installed
+- `langgraph_integration.py`: builds a quality → recommendation workflow with LangGraph when installed
+
+If LangChain/LangGraph are not installed, both adapters gracefully fall back to local callable wrappers.
+
 ## Quick Start
 
 ### Prerequisites
