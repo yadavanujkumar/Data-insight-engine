@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import os
 
 from fastapi import FastAPI
@@ -21,12 +22,20 @@ from app.api import (
 )
 from app.config import settings
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    yield
+
+
 app = FastAPI(
     title=settings.APP_NAME,
     description="Production-ready Decision Intelligence Platform",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -56,11 +65,6 @@ app.include_router(nlq.router, prefix=prefix, tags=["nlq"])
 app.include_router(alerts.router, prefix=prefix, tags=["alerts"])
 app.include_router(reports.router, prefix=prefix, tags=["reports"])
 app.include_router(metrics.router, prefix=prefix, tags=["metrics"])
-
-
-@app.on_event("startup")
-async def startup_event():
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
 
 @app.get("/health", tags=["health"])

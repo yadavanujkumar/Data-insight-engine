@@ -40,7 +40,7 @@ def get_metric_history(
 
 @router.get("/metrics")
 def list_metrics(db: Session = Depends(get_db)):
-    from sqlalchemy import func, distinct
+    from sqlalchemy import func
     results = db.query(
         MetricSnapshot.metric_name,
         func.count(MetricSnapshot.id).label("count"),
