@@ -3,12 +3,14 @@ from typing import Any, Dict, List
 import numpy as np
 from sqlalchemy.orm import Session
 
+from app.core.base_service import BaseService
+from app.core.event_bus import event_bus
 from app.models.db_models import Dataset, Recommendation
 from app.services.ingestion_service import IngestionService
 from app.services.quality_service import QualityService
 
 
-class RecommendationService:
+class RecommendationService(BaseService):
     def __init__(self, db: Session):
         self.db = db
         self.ingestion = IngestionService(db)
@@ -91,4 +93,15 @@ class RecommendationService:
         self.db.commit()
         for rec in db_recs:
             self.db.refresh(rec)
+        event_bus.publish(
+            "recommendations.generated",
+            {"dataset_id": dataset.id, "recommendation_count": len(db_recs)},
+        )
         return db_recs
+
+    def execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        dataset = payload.get("dataset")
+        if dataset is None:
+            return {"error": "dataset is required"}
+        recs = self.generate(dataset)
+        return {"dataset_id": dataset.id, "recommendation_ids": [rec.id for rec in recs]}
